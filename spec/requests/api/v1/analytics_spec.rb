@@ -64,7 +64,7 @@ RSpec.describe "GET /api/v1/analytics" do
     get "/api/v1/analytics", headers: auth_headers_for(admin)
     monthly = response.parsed_body["analytics"]["monthly_evacuation_counts"]
     expect(monthly.length).to eq(12)
-    monthly.each { |m| expect(m).to include("month", "count") }
+    expect(monthly).to all(include("month", "count"))
   end
 
   it "scopes analytics to staff barangay" do
