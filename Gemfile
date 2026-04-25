@@ -39,6 +39,8 @@ gem 'bootsnap', require: false
 
 gem 'blueprinter'
 gem 'kaminari'
+gem 'prawn'
+gem 'prawn-table'
 
 # Authentication
 gem 'devise'
