@@ -11,4 +11,8 @@ class ResidentBlueprint < Blueprinter::Base
   field :archived do |resident| # rubocop:disable Style/SymbolProc
     resident.archived?
   end
+
+  view :with_household do
+    fields :household_head_name, :sitio_purok, :evacuation_status
+  end
 end

@@ -3,7 +3,8 @@
 class Resident < ApplicationRecord
   belongs_to :household
 
-  delegate :barangay_name, to: :household
+  delegate :barangay_name, :sitio_purok, :evacuation_status, :household_head_name, to: :household
+
   enum :sex, { sex_unspecified: 0, male: 1, female: 2, sex_other: 3 }
   enum :special_needs_category, { no_needs: 0, pwd: 1, elderly: 2, infant: 3, pregnant: 4, bedridden: 5 }
 
@@ -16,6 +17,8 @@ class Resident < ApplicationRecord
   scope :with_special_needs, -> { where.not(special_needs_category: :no_needs) }
   scope :by_name, ->(query) { where("full_name ILIKE ?", "%#{query}%") }
   scope :with_evacuation_status, ->(status) { joins(:household).where(households: { evacuation_status: status }) }
+  scope :elderly_by_age, -> { where("age >= ?", 60) }
+  scope :infant_by_age, -> { where("age <= ?", 2) }
 
   def archive!
     update!(archived_at: Time.current)
@@ -24,5 +27,4 @@ class Resident < ApplicationRecord
   def archived?
     archived_at.present?
   end
-
 end
