@@ -13,6 +13,8 @@ class EvacuationEvent < ApplicationRecord
 
   scope :for_barangay, ->(barangay) { where(barangay_name: barangay) }
   scope :active_events, -> { where(status: :active) }
+  scope :resolved_events, -> { where(status: :resolved) }
+  scope :for_typhoon, ->(name) { where(typhoon_name: name) }
 
   def resolve!(user, notes: nil)
     update!(resolved_by: user, resolved_at: Time.current, status: :resolved, notes:)
