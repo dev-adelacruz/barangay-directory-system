@@ -35,6 +35,8 @@ namespace :v1 do
     post :deactivate, action: :deactivate
   end
 
+  get "dashboard/summary", to: "dashboard#summary"
+
   resources :evacuation_centers, only: %i[index show create update] do
     member do
       patch :update_occupancy
