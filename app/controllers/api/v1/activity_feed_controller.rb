@@ -51,7 +51,7 @@ class Api::V1::ActivityFeedController < Api::V1::BaseController
     end
   end
 
-  def typhoon_mode_events
+  def typhoon_mode_events # rubocop:disable Metrics/CyclomaticComplexity
     scope = TyphoonModeActivation.order(activated_at: :desc).limit(10)
     scope = scope.for_barangay(scoped_barangay) if scoped_barangay
 
