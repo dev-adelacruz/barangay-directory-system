@@ -40,6 +40,24 @@ class Api::V1::EvacuationEventsController < Api::V1::BaseController
     }
   end
 
+  def export_report
+    scope = apply_filters(base_scope.order(activated_at: :desc))
+    exporter = EvacuationReportExporter.new(scope)
+    format = params[:format] == "pdf" ? "pdf" : "csv"
+
+    if format == "pdf"
+      send_data exporter.to_pdf,
+                filename: exporter.export_filename("pdf"),
+                type: "application/pdf",
+                disposition: "attachment"
+    else
+      send_data exporter.to_csv,
+                filename: exporter.export_filename("csv"),
+                type: "text/csv",
+                disposition: "attachment"
+    end
+  end
+
   def resolve
     if @event.resolved?
       return render json: { error: "Event is already resolved." }, status: :unprocessable_entity

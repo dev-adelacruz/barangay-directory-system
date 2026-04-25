@@ -40,6 +40,7 @@ namespace :v1 do
   resources :evacuation_events, only: %i[index show create] do
     collection do
       get :history
+      get :export_report
     end
     member do
       patch :resolve
