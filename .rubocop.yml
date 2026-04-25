@@ -1,0 +1,129 @@
+inherit_from:
+  - .rubocop_rules.yml
+require:
+  - rubocop-ordered_methods
+  - rubocop-rspec
+  - rubocop-thread_safety
+  - rubocop-factory_bot
+  - rubocop-rails
+  - rubocop-rspec_rails
+AllCops:
+  TargetRubyVersion: 3.1
+  Exclude:
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'vendor/**/*'
+    - 'config/**/*'
+    - 'compose-files/**/*'
+  NewCops: enable
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/ClassStructure:
+  Enabled: true
+  ExpectedOrder:
+    - module_inclusion
+    - constants
+    - association
+    - public_attribute_macros
+    - public_delegate
+    - macros
+    - public_class_methods
+    - initializer
+    - public_methods
+    - protected_attribute_macros
+    - protected_methods
+    - private_attribute_macros
+    - private_delegate
+    - private_methods
+  Categories:
+    association:
+      - belongs_to_many
+      - belongs_to
+      - has_many
+      - has_one
+      - has_one_attached
+      - has_many_attached
+    attribute_macros:
+      - alias_attribute
+      - attribute
+      - attr_accessor
+      - attr_reader
+      - attr_writer
+    macros:
+      - enum
+      - scope
+      - validates
+      - validate
+    module_inclusion:
+      - include
+      - prepend
+      - extend
+Layout/OrderedMethods:
+  Enabled: true
+  EnforcedStyle: alphabetical
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - 'lib/tasks/routes_csv.rake'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'config/routes/**/*'
+
+Metrics/MethodLength:
+  Max: 15
+  Exclude:
+    - 'app/jobs/**/*'
+    - 'lib/d12n/export/formats/**/*'
+    - 'lib/tasks/routes_csv.rake'
+
+Metrics/AbcSize:
+  Exclude:
+    - 'lib/d12n/export/formats/**/*'
+    - 'lib/tasks/routes_csv.rake'
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'lib/tasks/routes_csv.rake'
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'lib/tasks/routes_csv.rake'
+
+Style/Documentation:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+Naming/VariableNumber:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 10
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+
+RSpec/FilePath:
+  SpecSuffixOnly: true
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Description: >-
+    Favor modifier if/unless usage when you have a
+    single-line body.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#if-as-a-modifier'
+  Enabled: false
+
+Style/OpenStructUse:
+  Enabled: false

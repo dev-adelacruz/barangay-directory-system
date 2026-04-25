@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Verifies that every create_file path in template.rb matches the corresponding
+# live source file in this repo.
+#
+# Usage:
+#   bin/verify_template              # check all files
+#   bin/verify_template config/      # check only files under config/
+#
+# Exit codes: 0 = all match, 1 = diffs found or files missing
+
+require "tempfile"
+
+REPO_ROOT = File.expand_path("..", __dir__)
+TEMPLATE  = File.join(REPO_ROOT, "template.rb")
+FILTER    = ARGV[0]
+
+source = File.read(TEMPLATE)
+
+# Squiggly heredoc (<<~) strips the minimum indentation of non-empty lines,
+# matching Ruby's own behaviour so we get the exact string the template writes.
+def squiggly_strip(content)
+  lines = content.split("\n", -1)
+  min_indent = lines
+    .reject { |l| l.strip.empty? }
+    .map    { |l| l.match(/\A( *)/)[1].length }
+    .min || 0
+  lines.map { |l| l.length >= min_indent ? l[min_indent..] : l }.join("\n")
+end
+
+# Collect all create_file blocks; when the same path appears more than once
+# (e.g. Phase 1 skeleton then Phase 2 full routes) the LAST one wins,
+# mirroring the `force: true` semantics in the template.
+entries = {}
+
+source.scan(/create_file\s+["']([^"']+)["'][^<\n]*\n\s*<<~(\w+)\n(.*?)\n[ \t]*\2/m) do |path, _delim, raw|
+  next if FILTER && !path.start_with?(FILTER)
+  entries[path] = squiggly_strip(raw).gsub('\#{', '#{').rstrip + "\n"
+end
+
+if entries.empty?
+  puts "No create_file entries found#{FILTER ? " matching '#{FILTER}'" : ""}."
+  exit 0
+end
+
+mismatches = []
+
+entries.each do |path, expected|
+  live_path = File.join(REPO_ROOT, path)
+
+  unless File.exist?(live_path)
+    mismatches << { path: path, reason: :missing }
+    next
+  end
+
+  actual = File.read(live_path)
+  mismatches << { path: path, reason: :diff, expected: expected, actual: actual } unless actual == expected
+end
+
+if mismatches.empty?
+  puts "✓ All #{entries.size} file(s) match."
+  exit 0
+end
+
+puts "✗ #{mismatches.size} mismatch(es) out of #{entries.size} checked:\n\n"
+
+mismatches.each do |m|
+  bar = "─" * [0, 60 - m[:path].length].max
+  puts "── #{m[:path]} #{bar}"
+
+  if m[:reason] == :missing
+    puts "  MISSING in repo (live file does not exist)\n\n"
+  else
+    tf_exp = Tempfile.new(["expected", ".txt"])
+    tf_act = Tempfile.new(["actual",   ".txt"])
+    tf_exp.write(m[:expected]); tf_exp.close
+    tf_act.write(m[:actual]);   tf_act.close
+    puts `diff --unified=3 \
+      --label "template.rb (expected)" #{tf_exp.path} \
+      --label "#{m[:path]} (live)"     #{tf_act.path}`
+  end
+end
+
+exit 1

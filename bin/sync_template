@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Syncs every create_file heredoc in template.rb to exactly match the
+# corresponding live source file in this repo.
+#
+# Usage:
+#   bin/sync_template              # sync all mismatches
+#   bin/sync_template config/      # sync only files under config/
+#
+# Safe to run multiple times (idempotent).
+
+REPO_ROOT = File.expand_path("..", __dir__)
+TEMPLATE  = File.join(REPO_ROOT, "template.rb")
+FILTER    = ARGV[0]
+
+source = File.read(TEMPLATE)
+
+def squiggly_strip(content)
+  lines = content.split("\n", -1)
+  min_indent = lines.reject { |l| l.strip.empty? }.map { |l| l.match(/\A( *)/)[1].length }.min || 0
+  lines.map { |l| l.length >= min_indent ? l[min_indent..] : l }.join("\n")
+end
+
+# Build ordered list of all create_file occurrences with their byte positions
+pattern = /create_file\s+["']([^"']+)["'][^<\n]*\n([ \t]*)<<~(\w+)\n(.*?)\n[ \t]*\3/m
+
+# For duplicate paths, only the last occurrence is authoritative (force: true wins)
+occurrences = []
+source.scan(pattern) do |path, indent, delim, raw|
+  occurrences << {
+    path:       path,
+    indent:     indent,
+    delim:      delim,
+    raw:        raw,
+    full_match: Regexp.last_match[0],
+    offset:     Regexp.last_match.begin(0)
+  }
+end
+
+# Keep only the last occurrence per path
+by_path = {}
+occurrences.each { |o| by_path[o[:path]] = o }
+last_occurrences = by_path.values
+
+synced  = 0
+skipped = 0
+
+last_occurrences.each do |entry|
+  path = entry[:path]
+  next if FILTER && !path.start_with?(FILTER)
+
+  live_path = File.join(REPO_ROOT, path)
+  unless File.exist?(live_path)
+    puts "  SKIP  #{path} (live file not found)"
+    skipped += 1
+    next
+  end
+
+  current_content = squiggly_strip(entry[:raw]).rstrip + "\n"
+  live_content    = File.read(live_path)
+
+  if current_content == live_content
+    skipped += 1
+    next
+  end
+
+  # Re-indent the live content to match the heredoc's indentation level
+  # so the template file itself stays readable
+  indented = live_content.rstrip.gsub(/^(?=.)/, entry[:indent] + "  ")
+
+  new_block = entry[:full_match]
+    .sub(/(?<=<<~#{entry[:delim]}\n).*(?=\n[ \t]*#{entry[:delim]})/m, indented)
+
+  source = source.sub(entry[:full_match], new_block)
+  puts "  SYNC  #{path}"
+  synced += 1
+end
+
+File.write(TEMPLATE, source)
+puts "\nDone. #{synced} synced, #{skipped} already up to date."
