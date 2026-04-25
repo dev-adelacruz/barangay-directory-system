@@ -12,4 +12,8 @@ class HouseholdBlueprint < Blueprinter::Base
   field :archived do |household| # rubocop:disable Style/SymbolProc
     household.archived?
   end
+
+  view :with_status_history do
+    association :status_changes, blueprint: HouseholdStatusChangeBlueprint
+  end
 end

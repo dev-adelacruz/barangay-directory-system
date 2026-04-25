@@ -2,8 +2,8 @@
 
 # rubocop:disable Layout/OrderedMethods
 class Api::V1::HouseholdsController < Api::V1::BaseController
-  before_action :authorize_write!, only: %i[create update archive]
-  before_action :set_household, only: %i[show update archive]
+  before_action :authorize_write!, only: %i[create update archive update_status bulk_update_status]
+  before_action :set_household, only: %i[show update archive update_status]
 
   def index
     households = base_scope.order(:household_head_name)
@@ -17,7 +17,12 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
   end
 
   def show
-    render json: { household: HouseholdBlueprint.render_as_hash(@household) }
+    render json: {
+      household: HouseholdBlueprint.render_as_hash(
+        @household.tap { |h| h.status_changes.load },
+        view: :with_status_history
+      )
+    }
   end
 
   def create
@@ -41,6 +46,31 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
   def archive
     @household.archive!
     render json: { household: HouseholdBlueprint.render_as_hash(@household) }
+  end
+
+  def update_status
+    @household.update_evacuation_status!(params.require(:evacuation_status), changed_by: current_user)
+    render json: { household: HouseholdBlueprint.render_as_hash(@household) }
+  rescue ArgumentError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  def bulk_update_status # rubocop:disable Metrics/AbcSize
+    updates = params.require(:households).map do |entry|
+      { id: entry[:id], evacuation_status: entry[:evacuation_status] }
+    end
+
+    results = updates.filter_map do |entry|
+      household = base_scope.find_by(id: entry[:id])
+      next { id: entry[:id], error: "not found" } unless household
+
+      household.update_evacuation_status!(entry[:evacuation_status], changed_by: current_user)
+      { id: household.id, evacuation_status: household.evacuation_status }
+    rescue ArgumentError => e
+      { id: entry[:id], error: e.message }
+    end
+
+    render json: { results: }
   end
 
   private

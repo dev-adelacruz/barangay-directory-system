@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_25_000003) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_25_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "household_status_changes", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "previous_status"
+    t.integer "new_status", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_household_status_changes_on_created_at"
+    t.index ["household_id"], name: "index_household_status_changes_on_household_id"
+    t.index ["new_status"], name: "index_household_status_changes_on_new_status"
+    t.index ["user_id"], name: "index_household_status_changes_on_user_id"
+  end
 
   create_table "households", force: :cascade do |t|
     t.string "household_head_name", null: false
@@ -55,4 +68,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_25_000003) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "household_status_changes", "households"
+  add_foreign_key "household_status_changes", "users"
 end

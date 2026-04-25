@@ -4,8 +4,12 @@ namespace :v1 do
   draw(:devise)
 
   resources :households, only: %i[index show create update] do
+    collection do
+      patch :bulk_update_status
+    end
     member do
       patch :archive
+      patch :update_status
     end
   end
 
