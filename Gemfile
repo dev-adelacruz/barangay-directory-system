@@ -38,6 +38,7 @@ gem 'bootsnap', require: false
 # gem "image_processing", "~> 1.2"
 
 gem 'blueprinter'
+gem 'kaminari'
 
 # Authentication
 gem 'devise'
