@@ -2,8 +2,8 @@
 
 # rubocop:disable Layout/OrderedMethods, Metrics/ClassLength
 class Api::V1::HouseholdsController < Api::V1::BaseController
-  before_action :authorize_write!, only: %i[create update archive update_status bulk_update_status import]
-  before_action :set_household, only: %i[show update archive update_status]
+  before_action :authorize_write!, only: %i[create update archive update_status bulk_update_status import assign_center]
+  before_action :set_household, only: %i[show update archive update_status assign_center]
 
   def index
     households = base_scope.order(:household_head_name)
@@ -91,6 +91,15 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
   def map
     scope = apply_map_filters(base_scope.active.geotagged)
     render json: { households: HouseholdBlueprint.render_as_hash(scope, view: :map_pin) }
+  end
+
+  def assign_center
+    center_id = params[:evacuation_center_id].presence
+    center = center_id ? EvacuationCenter.find(center_id) : nil
+    @household.update!(evacuation_center: center)
+    render json: { household: HouseholdBlueprint.render_as_hash(@household) }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Evacuation center not found." }, status: :not_found
   end
 
   def bulk_update_status # rubocop:disable Metrics/AbcSize

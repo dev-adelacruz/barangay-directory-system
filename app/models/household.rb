@@ -3,6 +3,7 @@
 class Household < ApplicationRecord
   SPECIAL_NEEDS_FLAGS = %i[has_pwd has_elderly has_infants has_pregnant has_bedridden].freeze
 
+  belongs_to :evacuation_center, optional: true
   has_many :status_changes, class_name: "HouseholdStatusChange", dependent: :destroy
 
   enum :evacuation_status, {

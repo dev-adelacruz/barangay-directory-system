@@ -14,6 +14,7 @@ namespace :v1 do
     member do
       patch :archive
       patch :update_status
+      patch :assign_center
     end
   end
 
