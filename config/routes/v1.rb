@@ -38,6 +38,7 @@ namespace :v1 do
 
   get "dashboard/summary", to: "dashboard#summary"
   get "activity_feed", to: "activity_feed#index"
+  get "analytics", to: "analytics#index"
 
   resources :evacuation_events, only: %i[index show create] do
     collection do
