@@ -88,6 +88,11 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
     render json: { error: "Invalid CSV: #{e.message}" }, status: :unprocessable_entity
   end
 
+  def map
+    scope = apply_map_filters(base_scope.active.geotagged)
+    render json: { households: HouseholdBlueprint.render_as_hash(scope, view: :map_pin) }
+  end
+
   def bulk_update_status # rubocop:disable Metrics/AbcSize
     updates = params.require(:households).map do |entry|
       { id: entry[:id], evacuation_status: entry[:evacuation_status] }
@@ -113,6 +118,13 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
     scope = scope.where(evacuation_status: params[:evacuation_status]) if params[:evacuation_status].present?
     scope = scope.with_special_needs if params[:special_needs].present?
     params[:include_archived] == "true" ? scope : scope.active
+  end
+
+  def apply_map_filters(scope)
+    scope = scope.for_barangay(params[:barangay_name]) if params[:barangay_name].present?
+    scope = scope.where(evacuation_status: params[:evacuation_status]) if params[:evacuation_status].present?
+    scope = scope.with_special_needs if params[:special_needs].present?
+    scope
   end
 
   def base_scope

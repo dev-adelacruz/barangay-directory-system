@@ -21,6 +21,7 @@ class Household < ApplicationRecord
   scope :archived, -> { where.not(archived_at: nil) }
   scope :for_barangay, ->(barangay) { where(barangay_name: barangay) }
   scope :with_special_needs, -> { where("has_pwd OR has_elderly OR has_infants OR has_pregnant OR has_bedridden") }
+  scope :geotagged, -> { where.not(latitude: nil).where.not(longitude: nil) }
 
   def archive!
     update!(archived_at: Time.current)

@@ -9,6 +9,7 @@ namespace :v1 do
       post :import
       get :csv_template
       get :export
+      get :map
     end
     member do
       patch :archive
