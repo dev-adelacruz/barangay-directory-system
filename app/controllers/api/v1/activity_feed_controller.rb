@@ -33,7 +33,7 @@ class Api::V1::ActivityFeedController < Api::V1::BaseController
     end
   end
 
-  def household_status_events
+  def household_status_events # rubocop:disable Metrics/AbcSize
     scope = HouseholdStatusChange.includes(household: [], user: [])
                                  .order(created_at: :desc)
                                  .limit(20)
@@ -51,7 +51,7 @@ class Api::V1::ActivityFeedController < Api::V1::BaseController
     end
   end
 
-  def typhoon_mode_events # rubocop:disable Metrics/CyclomaticComplexity
+  def typhoon_mode_events # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     scope = TyphoonModeActivation.order(activated_at: :desc).limit(10)
     scope = scope.for_barangay(scoped_barangay) if scoped_barangay
 
