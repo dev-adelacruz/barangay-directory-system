@@ -2,5 +2,5 @@
 class UserBlueprint < Blueprinter::Base
   identifier :id
 
-  fields :email
+  fields :email, :role, :barangay_name, :full_name
 end

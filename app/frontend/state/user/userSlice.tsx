@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from '../../services/authService';
 import { tokenStorage } from '../../services/tokenStorage';
+import type { UserState } from '../../interfaces/user';
 
 // Async thunks for authentication
 export const loginUser = createAsyncThunk(
@@ -60,7 +61,7 @@ const initialState: UserState = {
   token: null,
   user: null,
   isLoading: false,
-  error: null
+  error: null,
 };
 
 const userSlice = createSlice({
