@@ -93,7 +93,7 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
     render json: { households: HouseholdBlueprint.render_as_hash(scope, view: :map_pin) }
   end
 
-  def status_updates
+  def status_updates # rubocop:disable Metrics/AbcSize
     since = params[:since].present? ? Time.zone.parse(params[:since]) : 5.minutes.ago
     changed_ids = HouseholdStatusChange
                     .where("household_status_changes.created_at >= ?", since)
