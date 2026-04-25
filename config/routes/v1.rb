@@ -37,6 +37,12 @@ namespace :v1 do
 
   get "dashboard/summary", to: "dashboard#summary"
 
+  resources :evacuation_events, only: %i[index show create] do
+    member do
+      patch :resolve
+    end
+  end
+
   resources :evacuation_centers, only: %i[index show create update] do
     member do
       patch :update_occupancy
