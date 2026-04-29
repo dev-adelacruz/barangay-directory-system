@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "repo": "dev-adelacruz/barangay-directory-system",
+  "jira_domain": "snapplabs.atlassian.net",
+  "jira_project": "BDS",
+  "slack_channel": "dev-notifications",
+  "slack_group": "none",
+  "pr_reviewer_team": "none",
+  "pr_milestone": "Untracked",
+  "base_branch": "main"
+}

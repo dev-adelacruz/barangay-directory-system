@@ -10,9 +10,46 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_25_000005) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_25_000011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "evacuation_centers", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "barangay_name", null: false
+    t.string "address"
+    t.integer "max_capacity", null: false
+    t.integer "current_occupancy", default: 0, null: false
+    t.decimal "latitude", precision: 10, scale: 7
+    t.decimal "longitude", precision: 10, scale: 7
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["barangay_name"], name: "index_evacuation_centers_on_barangay_name"
+    t.index ["status"], name: "index_evacuation_centers_on_status"
+  end
+
+  create_table "evacuation_events", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "barangay_name"
+    t.integer "scope", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.bigint "activated_by_id", null: false
+    t.bigint "resolved_by_id"
+    t.datetime "activated_at", null: false
+    t.datetime "resolved_at"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "typhoon_name"
+    t.integer "households_affected", default: 0, null: false
+    t.integer "residents_affected", default: 0, null: false
+    t.index ["activated_at"], name: "index_evacuation_events_on_activated_at"
+    t.index ["activated_by_id"], name: "index_evacuation_events_on_activated_by_id"
+    t.index ["barangay_name"], name: "index_evacuation_events_on_barangay_name"
+    t.index ["resolved_by_id"], name: "index_evacuation_events_on_resolved_by_id"
+    t.index ["status"], name: "index_evacuation_events_on_status"
+  end
 
   create_table "household_status_changes", force: :cascade do |t|
     t.bigint "household_id", null: false
@@ -43,8 +80,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_25_000005) do
     t.datetime "archived_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "evacuation_center_id"
     t.index ["archived_at"], name: "index_households_on_archived_at"
     t.index ["barangay_name"], name: "index_households_on_barangay_name"
+    t.index ["evacuation_center_id"], name: "index_households_on_evacuation_center_id"
     t.index ["evacuation_status"], name: "index_households_on_evacuation_status"
   end
 
@@ -62,6 +101,33 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_25_000005) do
     t.index ["full_name"], name: "index_residents_on_full_name"
     t.index ["household_id"], name: "index_residents_on_household_id"
     t.index ["special_needs_category"], name: "index_residents_on_special_needs_category"
+  end
+
+  create_table "risk_zones", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "barangay_name", null: false
+    t.integer "risk_level", default: 0, null: false
+    t.jsonb "boundary", default: {}, null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["barangay_name"], name: "index_risk_zones_on_barangay_name"
+    t.index ["risk_level"], name: "index_risk_zones_on_risk_level"
+  end
+
+  create_table "typhoon_mode_activations", force: :cascade do |t|
+    t.bigint "activated_by_id", null: false
+    t.bigint "deactivated_by_id"
+    t.string "barangay_name"
+    t.string "typhoon_name"
+    t.datetime "activated_at", null: false
+    t.datetime "deactivated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activated_by_id"], name: "index_typhoon_mode_activations_on_activated_by_id"
+    t.index ["barangay_name"], name: "index_typhoon_mode_activations_on_barangay_name"
+    t.index ["deactivated_at"], name: "index_typhoon_mode_activations_on_deactivated_at"
+    t.index ["deactivated_by_id"], name: "index_typhoon_mode_activations_on_deactivated_by_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -84,7 +150,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_25_000005) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "evacuation_events", "users", column: "activated_by_id"
+  add_foreign_key "evacuation_events", "users", column: "resolved_by_id"
   add_foreign_key "household_status_changes", "households"
   add_foreign_key "household_status_changes", "users"
+  add_foreign_key "households", "evacuation_centers"
   add_foreign_key "residents", "households"
+  add_foreign_key "typhoon_mode_activations", "users", column: "activated_by_id"
+  add_foreign_key "typhoon_mode_activations", "users", column: "deactivated_by_id"
 end
