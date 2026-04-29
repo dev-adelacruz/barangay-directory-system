@@ -31,6 +31,15 @@ class Api::V1::EvacuationEventsController < Api::V1::BaseController
     end
   end
 
+  def history
+    events = apply_filters(base_scope.resolved_events.order(resolved_at: :desc))
+               .page(params[:page]).per(params[:per_page] || 25)
+    render json: {
+      evacuation_events: EvacuationEventBlueprint.render_as_hash(events),
+      meta: pagination_meta(events)
+    }
+  end
+
   def resolve
     if @event.resolved?
       return render json: { error: "Event is already resolved." }, status: :unprocessable_entity
@@ -53,7 +62,10 @@ class Api::V1::EvacuationEventsController < Api::V1::BaseController
   end
 
   def event_params
-    params.require(:evacuation_event).permit(:name, :barangay_name, :notes)
+    params.require(:evacuation_event).permit(
+      :name, :barangay_name, :notes, :typhoon_name,
+      :households_affected, :residents_affected
+    )
   end
 
   def pagination_meta(collection)
