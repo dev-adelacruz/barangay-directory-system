@@ -34,6 +34,12 @@ namespace :v1 do
     post :deactivate, action: :deactivate
   end
 
+  resources :evacuation_centers, only: %i[index show create update] do
+    member do
+      patch :update_occupancy
+    end
+  end
+
   namespace :admin do
     resources :users, only: %i[index show create update destroy] do
       member do
