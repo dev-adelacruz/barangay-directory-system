@@ -28,6 +28,18 @@ namespace :v1 do
 
   resources :risk_zones, only: %i[index show create update destroy]
 
+  scope :typhoon_mode, controller: :typhoon_mode do
+    get "/", action: :status, as: :typhoon_mode_status
+    post :activate, action: :activate
+    post :deactivate, action: :deactivate
+  end
+
+  resources :evacuation_centers, only: %i[index show create update] do
+    member do
+      patch :update_occupancy
+    end
+  end
+
   namespace :admin do
     resources :users, only: %i[index show create update destroy] do
       member do
