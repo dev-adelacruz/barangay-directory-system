@@ -34,6 +34,11 @@ class Household < ApplicationRecord
     SPECIAL_NEEDS_FLAGS.select { |flag| public_send(flag) }
   end
 
+  def special_needs_summary
+    flags = special_needs_flags
+    flags.empty? ? "None" : flags.map { |f| f.to_s.delete_prefix("has_").capitalize }.join(", ")
+  end
+
   def update_evacuation_status!(new_status, changed_by:)
     previous = evacuation_status
     update!(evacuation_status: new_status)
