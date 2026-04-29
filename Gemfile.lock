@@ -139,6 +139,18 @@ GEM
     json-schema (4.3.1)
       addressable (>= 2.8)
     jwt (2.7.1)
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
     language_server-protocol (3.17.0.3)
     logger (1.6.2)
     loofah (2.22.0)
@@ -366,6 +378,7 @@ DEPENDENCIES
   factory_bot_rails
   faker
   jbuilder
+  kaminari
   pg (~> 1.1)
   pry (~> 0.15.0)
   puma (>= 5.0)

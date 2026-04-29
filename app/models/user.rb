@@ -13,7 +13,13 @@ class User < ApplicationRecord
   validates :role, presence: true
   validates :barangay_name, presence: true, if: :staff?
 
+  scope :active, -> { where(active: true) }
+  scope :inactive, -> { where(active: false) }
   scope :for_barangay, ->(barangay) { where(barangay_name: barangay) }
+
+  def active_for_authentication?
+    super && active?
+  end
 
   def can_read_all_barangays?
     admin? || drrmo?
@@ -21,5 +27,9 @@ class User < ApplicationRecord
 
   def can_write?
     admin? || staff?
+  end
+
+  def inactive_message
+    active? ? super : :deactivated
   end
 end
