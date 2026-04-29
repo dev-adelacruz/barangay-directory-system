@@ -6,6 +6,9 @@ namespace :v1 do
   resources :households, only: %i[index show create update] do
     collection do
       patch :bulk_update_status
+      post :import
+      get :csv_template
+      get :export
     end
     member do
       patch :archive

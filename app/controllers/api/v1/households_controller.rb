@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# rubocop:disable Layout/OrderedMethods
+# rubocop:disable Layout/OrderedMethods, Metrics/ClassLength
 class Api::V1::HouseholdsController < Api::V1::BaseController
-  before_action :authorize_write!, only: %i[create update archive update_status bulk_update_status]
+  before_action :authorize_write!, only: %i[create update archive update_status bulk_update_status import]
   before_action :set_household, only: %i[show update archive update_status]
 
   def index
@@ -53,6 +53,39 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
     render json: { household: HouseholdBlueprint.render_as_hash(@household) }
   rescue ArgumentError => e
     render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  def export
+    scope = apply_filters(base_scope.order(:household_head_name))
+    exporter = HouseholdExporter.new(scope)
+    format = params[:format] == "pdf" ? "pdf" : "csv"
+
+    if format == "pdf"
+      send_data exporter.to_pdf,
+                filename: exporter.export_filename("pdf"),
+                type: "application/pdf",
+                disposition: "attachment"
+    else
+      send_data exporter.to_csv,
+                filename: exporter.export_filename("csv"),
+                type: "text/csv",
+                disposition: "attachment"
+    end
+  end
+
+  def csv_template
+    csv = CSV.generate { |c| c << HouseholdCsvImporter::ALL_COLUMNS }
+    send_data csv, filename: "household_import_template.csv", type: "text/csv", disposition: "attachment"
+  end
+
+  def import
+    result = HouseholdCsvImporter.new(
+      params.require(:file).read,
+      barangay_scope: scoped_barangay
+    ).call
+    render json: { imported: result.imported_count, skipped: result.skipped_count, errors: result.errors }
+  rescue CSV::MalformedCSVError => e
+    render json: { error: "Invalid CSV: #{e.message}" }, status: :unprocessable_entity
   end
 
   def bulk_update_status # rubocop:disable Metrics/AbcSize
@@ -107,4 +140,4 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
     @household = base_scope.find(params[:id])
   end
 end
-# rubocop:enable Layout/OrderedMethods
+# rubocop:enable Layout/OrderedMethods, Metrics/ClassLength
