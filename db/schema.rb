@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_25_000004) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_25_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -48,6 +48,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_25_000004) do
     t.index ["evacuation_status"], name: "index_households_on_evacuation_status"
   end
 
+  create_table "residents", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "full_name", null: false
+    t.integer "age"
+    t.integer "sex", default: 0, null: false
+    t.string "relationship_to_head"
+    t.integer "special_needs_category", default: 0, null: false
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["archived_at"], name: "index_residents_on_archived_at"
+    t.index ["full_name"], name: "index_residents_on_full_name"
+    t.index ["household_id"], name: "index_residents_on_household_id"
+    t.index ["special_needs_category"], name: "index_residents_on_special_needs_category"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -70,4 +86,5 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_25_000004) do
 
   add_foreign_key "household_status_changes", "households"
   add_foreign_key "household_status_changes", "users"
+  add_foreign_key "residents", "households"
 end
