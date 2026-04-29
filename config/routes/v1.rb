@@ -9,6 +9,7 @@ namespace :v1 do
       post :import
       get :csv_template
       get :export
+      get :map
     end
     member do
       patch :archive
@@ -24,6 +25,8 @@ namespace :v1 do
       patch :archive
     end
   end
+
+  resources :risk_zones, only: %i[index show create update destroy]
 
   namespace :admin do
     resources :users, only: %i[index show create update destroy] do

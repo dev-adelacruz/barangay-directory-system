@@ -16,4 +16,11 @@ class HouseholdBlueprint < Blueprinter::Base
   view :with_status_history do
     association :status_changes, blueprint: HouseholdStatusChangeBlueprint
   end
+
+  view :map_pin do
+    fields :household_head_name, :barangay_name, :sitio_purok,
+           :latitude, :longitude, :evacuation_status, :member_count,
+           :has_pwd, :has_elderly, :has_infants, :has_pregnant, :has_bedridden
+    field :special_needs_flags
+  end
 end
