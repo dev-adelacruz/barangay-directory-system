@@ -93,6 +93,21 @@ class Api::V1::HouseholdsController < Api::V1::BaseController
     render json: { households: HouseholdBlueprint.render_as_hash(scope, view: :map_pin) }
   end
 
+  def status_updates # rubocop:disable Metrics/AbcSize
+    since = params[:since].present? ? Time.zone.parse(params[:since]) : 5.minutes.ago
+    changed_ids = HouseholdStatusChange
+                    .where("household_status_changes.created_at >= ?", since)
+                    .then { |scope| scoped_barangay ? scope.joins(:household).where(households: { barangay_name: scoped_barangay }) : scope }
+                    .distinct
+                    .pluck(:household_id)
+
+    households = base_scope.where(id: changed_ids).active.geotagged
+    render json: {
+      households: HouseholdBlueprint.render_as_hash(households, view: :map_pin),
+      as_of: Time.current.iso8601
+    }
+  end
+
   def assign_center
     center_id = params[:evacuation_center_id].presence
     center = center_id ? EvacuationCenter.find(center_id) : nil

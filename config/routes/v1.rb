@@ -10,6 +10,7 @@ namespace :v1 do
       get :csv_template
       get :export
       get :map
+      get :status_updates
     end
     member do
       patch :archive
@@ -40,6 +41,7 @@ namespace :v1 do
   resources :evacuation_events, only: %i[index show create] do
     collection do
       get :history
+      get :export_report
     end
     member do
       patch :resolve
