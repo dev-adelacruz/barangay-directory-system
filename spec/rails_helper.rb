@@ -6,6 +6,7 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require_relative 'support/factory_bot'
 require_relative 'support/shoulda_matchers'
+require_relative 'support/jwt_auth'
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'rspec/rails'
