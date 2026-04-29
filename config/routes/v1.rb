@@ -17,6 +17,9 @@ namespace :v1 do
   end
 
   resources :residents, only: %i[index show create update] do
+    collection do
+      get :export
+    end
     member do
       patch :archive
     end
