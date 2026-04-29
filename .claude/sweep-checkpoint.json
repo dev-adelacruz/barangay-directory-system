@@ -1,0 +1,25 @@
+{
+  "completed": ["BDS-11", "BDS-12"],
+  "in_progress": {
+    "key": "BDS-13",
+    "last_milestone": null,
+    "branch": "feat/BDS-13",
+    "pr_number": null
+  },
+  "detection_cache": {
+    "BE_FRAMEWORK": "rails",
+    "FRONTEND_ROOT": "app/frontend/",
+    "STORE": "redux",
+    "API_CLIENT": "manual",
+    "BE_TEST_CMD": "bundle exec rspec",
+    "BE_LINT_FIX": "bundle exec rubocop -a",
+    "BE_LINT_CHECK": "bundle exec rubocop",
+    "BE_FORMAT_CMD": "bundle exec stree write",
+    "API_GEN_CMD": null,
+    "FE_TEST": "none",
+    "FE_TEST_CMD": null,
+    "FE_LINT": "none",
+    "FE_LINT_FIX": null,
+    "FE_LINT_CHECK": null
+  }
+}
