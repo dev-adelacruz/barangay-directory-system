@@ -14,6 +14,7 @@ namespace :v1 do
     member do
       patch :archive
       patch :update_status
+      patch :assign_center
     end
   end
 
@@ -33,6 +34,8 @@ namespace :v1 do
     post :activate, action: :activate
     post :deactivate, action: :deactivate
   end
+
+  get "dashboard/summary", to: "dashboard#summary"
 
   resources :evacuation_centers, only: %i[index show create update] do
     member do

@@ -9,6 +9,7 @@ class HouseholdBlueprint < Blueprinter::Base
          :has_pwd, :has_elderly, :has_infants, :has_pregnant, :has_bedridden
 
   field :special_needs_flags
+  field :evacuation_center_id
   field :archived do |household| # rubocop:disable Style/SymbolProc
     household.archived?
   end

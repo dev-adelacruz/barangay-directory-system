@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class EvacuationCenter < ApplicationRecord
+  has_many :households, dependent: :nullify
+
   enum :status, { open: 0, at_capacity: 1, full: 2, closed: 3 }
 
   validates :name, presence: true
