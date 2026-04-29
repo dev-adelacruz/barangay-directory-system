@@ -26,6 +26,8 @@ namespace :v1 do
     end
   end
 
+  resources :risk_zones, only: %i[index show create update destroy]
+
   namespace :admin do
     resources :users, only: %i[index show create update destroy] do
       member do
