@@ -10,6 +10,7 @@ namespace :v1 do
       get :csv_template
       get :export
       get :map
+      get :status_updates
     end
     member do
       patch :archive
